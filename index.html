@@ -5,265 +5,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContratPro - Générateur de Contrats pour Freelances</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Ajout de la bibliothèque jsPDF pour la génération de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #6366f1;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #e2e8f0;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
-        }
-
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        nav {
+        /* Styles supplémentaires */
+        .option-toggle {
             display: flex;
-            justify-content: space-between;
+            margin-bottom: 15px;
             align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0.5rem 1rem;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            margin-left: 1.5rem;
-            font-weight: 500;
-        }
-
-        .hero {
-            background-color: var(--primary);
-            color: white;
-            padding: 3rem 1rem;
-            text-align: center;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-
-        .cta-button {
-            background-color: white;
-            color: var(--primary);
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
+        .toggle-switch {
+            position: relative;
             display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 15px;
         }
 
-        .cta-button:hover {
-            background-color: var(--gray);
-            transform: translateY(-2px);
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .feature-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-card h3 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h2 {
-            font-size: 2rem;
-            color: var(--primary);
-        }
-
-        .form-section {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin: 2rem 0;
-        }
-
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--gray);
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        textarea {
-            min-height: 150px;
-        }
-
-        .form-button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            font-weight: bold;
+        .slider {
+            position: absolute;
             cursor: pointer;
-            transition: background-color 0.3s;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
         }
 
-        .form-button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .preview-container {
-            background-color: var(--gray);
-            padding: 2rem;
-            border-radius: 8px;
-            margin-top: 2rem;
-        }
-
-        .preview-document {
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
             background-color: white;
-            padding: 3rem;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: .4s;
+            border-radius: 50%;
         }
 
-        footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 2rem 1rem;
-            text-align: center;
-            margin-top: 3rem;
+        input:checked+.slider {
+            background-color: #4CAF50;
         }
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
+        input:checked+.slider:before {
+            transform: translateX(26px);
         }
 
-        .footer-bottom {
-            margin-top: 1rem;
+        .custom-profession {
+            display: none;
+            margin-top: 10px;
         }
 
-        .template-selector {
-            margin-bottom: 2rem;
+        .options-panel {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        .template-selector h3 {
-            margin-bottom: 1rem;
-        }
-
-        .template-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .template-button {
-            padding: 0.75rem 1.5rem;
-            background-color: var(--light);
-            border: 1px solid var(--gray);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .template-button:hover {
-            background-color: var(--gray);
-        }
-
-        .template-button.active {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .feature-card {
-                margin-bottom: 1.5rem;
-            }
+        .options-title {
+            margin-top: 0;
+            color: #555;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
         }
     </style>
 </head>
@@ -275,7 +92,6 @@
             <div class="nav-links">
                 <a href="#features">Fonctionnalités</a>
                 <a href="#contract-maker">Créer un contrat</a>
-                <a href="#templates">Modèles</a>
             </div>
         </nav>
     </header>
@@ -332,51 +148,6 @@
             </div>
         </section>
 
-        <section id="templates">
-            <div class="section-title">
-                <h2>Nos modèles de contrats</h2>
-                <p>Des contrats adaptés à différentes situations professionnelles</p>
-            </div>
-
-            <div class="features">
-                <div class="feature-card">
-                    <h3>Contrat de prestation de services</h3>
-                    <p>Idéal pour les prestations ponctuelles avec un client. Inclut les clauses essentielles sur la
-                        propriété intellectuelle et les conditions de paiement.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Contrat de maintenance</h3>
-                    <p>Parfait pour les prestations récurrentes ou l'assistance technique. Définit clairement les délais
-                        d'intervention et les niveaux de service.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Contrat de développement logiciel</h3>
-                    <p>Spécifique aux projets de développement avec des clauses sur les tests, la garantie logicielle et
-                        les livraisons.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Contrat de design graphique</h3>
-                    <p>Adapté aux designers avec des clauses sur les révisions, les droits d'auteur et l'utilisation des
-                        créations.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Contrat de rédaction web</h3>
-                    <p>Pour les rédacteurs et copywriters avec des spécifications sur le nombre de mots, le
-                        référencement et les droits d'utilisation.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Contrat de coaching/formation</h3>
-                    <p>Pour les formateurs et coachs, avec des clauses sur le déroulement des sessions et le matériel
-                        pédagogique.</p>
-                </div>
-            </div>
-        </section>
-
         <section id="contract-maker">
             <div class="section-title">
                 <h2>Créer votre contrat</h2>
@@ -384,22 +155,10 @@
             </div>
 
             <div class="form-section">
-                <div class="template-selector">
-                    <h3>Choisissez un modèle</h3>
-                    <div class="template-buttons">
-                        <button class="template-button active" data-template="service">Prestation de services</button>
-                        <button class="template-button" data-template="maintenance">Maintenance</button>
-                        <button class="template-button" data-template="development">Développement logiciel</button>
-                        <button class="template-button" data-template="design">Design graphique</button>
-                        <button class="template-button" data-template="writing">Rédaction web</button>
-                        <button class="template-button" data-template="coaching">Coaching/Formation</button>
-                    </div>
-                </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="profession">Votre métier</label>
-                        <select id="profession">
+                        <select id="profession" onchange="toggleCustomProfession()">
                             <option value="">Sélectionnez votre métier</option>
                             <option value="developer">Développeur web</option>
                             <option value="designer">Designer graphique</option>
@@ -409,6 +168,10 @@
                             <option value="consultant">Consultant</option>
                             <option value="other">Autre</option>
                         </select>
+                        <!-- Champ pour saisir un métier personnalisé -->
+                        <div class="custom-profession" id="custom-profession-container">
+                            <input type="text" id="custom-profession" placeholder="Précisez votre métier">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -473,14 +236,65 @@
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="intellectual-property">Propriété intellectuelle</label>
-                        <select id="intellectual-property">
-                            <option value="client">Transfert complet au client</option>
-                            <option value="license">Licence d'utilisation pour le client</option>
-                            <option value="partial">Transfert partiel des droits</option>
-                        </select>
+                <!-- Options avancées avec toggles -->
+                <div class="options-panel">
+                    <h3 class="options-title">Options avancées</h3>
+
+                    <div class="option-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="ip-clause" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">Clause de propriété intellectuelle</h4>
+                            <select id="intellectual-property">
+                                <option value="client">Transfert complet au client</option>
+                                <option value="license">Licence d'utilisation pour le client</option>
+                                <option value="partial">Transfert partiel des droits</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="option-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="confidentiality-clause">
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">Clause de confidentialité</h4>
+                            <p style="margin: 0; color: #666;">Ajoute une clause de confidentialité standard au contrat
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="option-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="revision-clause">
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">Clause de révision</h4>
+                            <div style="display: flex; align-items: center;">
+                                <span style="margin-right: 10px;">Nombre de révisions incluses:</span>
+                                <input type="number" id="revision-count" value="2" min="1" max="10"
+                                    style="width: 60px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="late-payment-clause">
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">Clause de pénalité de retard</h4>
+                            <div style="display: flex; align-items: center;">
+                                <span style="margin-right: 10px;">Taux d'intérêt (%):</span>
+                                <input type="number" id="late-payment-rate" value="10" min="0" max="15"
+                                    style="width: 60px;">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -527,19 +341,8 @@
                     <p>Conditions de paiement : <span id="preview-payment">50% à la signature du contrat, 50% à la
                             livraison finale</span>.</p>
 
-                    <p style="margin-top: 1rem;"><strong>Article 4 : Propriété intellectuelle</strong></p>
-                    <p id="preview-ip">Le Client deviendra propriétaire de l'ensemble des droits de propriété
-                        intellectuelle sur les livrables produits par le Prestataire dès le paiement complet du prix
-                        convenu.</p>
-
-                    <div id="preview-additional">
-                        <p style="margin-top: 1rem;"><strong>Article 5 : Clauses supplémentaires</strong></p>
-                        <p>Le Prestataire s'engage à une obligation de confidentialité concernant toutes les
-                            informations et documents fournis par le Client.</p>
-                    </div>
-
-                    <div id="specific-clauses">
-                        <!-- Espace pour les clauses spécifiques au modèle sélectionné -->
+                    <!-- Articles dynamiques qui seront ajoutés ici -->
+                    <div id="dynamic-articles">
                     </div>
 
                     <p style="margin-top: 2rem;">Fait à _____________, le ___/___/_____</p>
@@ -557,7 +360,7 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 2rem;">
-                    <button class="form-button">Télécharger en PDF</button>
+                    <button class="form-button" onclick="downloadPDF()">Télécharger en PDF</button>
                 </div>
             </div>
         </section>
@@ -570,101 +373,70 @@
     </footer>
 
     <script>
-        // Sélection de modèle
-        const templateButtons = document.querySelectorAll('.template-button');
-        let currentTemplate = 'service';
+        // Activer le champ pour le métier personnalisé quand "Autre" est sélectionné
+        function toggleCustomProfession() {
+            const professionSelect = document.getElementById('profession');
+            const customProfessionContainer = document.getElementById('custom-profession-container');
 
-        templateButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                // Remove active class from all buttons
-                templateButtons.forEach(btn => btn.classList.remove('active'));
-
-                // Add active class to clicked button
-                this.classList.add('active');
-
-                // Store the selected template
-                currentTemplate = this.getAttribute('data-template');
-            });
-        });
+            if (professionSelect.value === 'other') {
+                customProfessionContainer.style.display = 'block';
+            } else {
+                customProfessionContainer.style.display = 'none';
+            }
+        }
 
         function generatePreview() {
             // Get form values
-            const profession = document.getElementById('profession').value;
+            const professionSelect = document.getElementById('profession');
+            let professionValue = professionSelect.value;
+            let professionText = professionSelect.options[professionSelect.selectedIndex].text;
+
+            // Si "Autre" est sélectionné, utiliser la valeur personnalisée
+            if (professionValue === 'other') {
+                professionText = document.getElementById('custom-profession').value || 'Freelance';
+            }
+
             const fullname = document.getElementById('fullname').value || 'Jean Dupont';
             const siret = document.getElementById('siret').value || '123 456 789 00012';
             const clientName = document.getElementById('client-name').value;
             const clientCompany = document.getElementById('client-company').value || 'Entreprise ABC';
             const projectDescription = document.getElementById('project-description').value || 'Développement d\'un site web e-commerce comprenant un catalogue produits, un système de paiement en ligne et un espace membre.';
-            const startDate = document.getElementById('start-date').value || '20/04/2025';
-            const endDate = document.getElementById('end-date').value || '20/07/2025';
-            const paymentTerms = document.getElementById('payment-terms').value;
-            const amount = document.getElementById('amount').value || '5000';
-            const ip = document.getElementById('intellectual-property').value;
-            const additionalClauses = document.getElementById('additional-clauses').value;
 
-            // Update title based on template
-            let contractTitle = "CONTRAT DE PRESTATION DE SERVICES";
-            let specificClauses = "";
+            // Formater les dates correctement
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
 
-            switch (currentTemplate) {
-                case 'maintenance':
-                    contractTitle = "CONTRAT DE MAINTENANCE";
-                    specificClauses = `
-                        <p style="margin-top: 1rem;"><strong>Article 6 : Délais d'intervention</strong></p>
-                        <p>Le Prestataire s'engage à intervenir dans un délai de 48 heures ouvrées à compter de la réception de la demande du Client.</p>
-                        
-                        <p style="margin-top: 1rem;"><strong>Article 7 : Niveau de service</strong></p>
-                        <p>Le Prestataire s'engage à assurer une disponibilité du service à hauteur de 99% sur la période contractuelle.</p>
-                    `;
-                    break;
-                case 'development':
-                    contractTitle = "CONTRAT DE DÉVELOPPEMENT LOGICIEL";
-                    specificClauses = `
-                        <p style="margin-top: 1rem;"><strong>Article 6 : Tests et recette</strong></p>
-                        <p>Le Client disposera d'un délai de 15 jours à compter de la livraison pour procéder aux tests et valider la conformité du logiciel.</p>
-                        
-                        <p style="margin-top: 1rem;"><strong>Article 7 : Garantie logicielle</strong></p>
-                        <p>Le Prestataire garantit la correction des bugs et dysfonctionnements pendant une période de 3 mois suivant la livraison finale.</p>
-                    `;
-                    break;
-                case 'design':
-                    contractTitle = "CONTRAT DE DESIGN GRAPHIQUE";
-                    specificClauses = `
-                        <p style="margin-top: 1rem;"><strong>Article 6 : Nombre de révisions</strong></p>
-                        <p>Le Client pourra demander jusqu'à 3 cycles de révisions des créations graphiques sans frais supplémentaires.</p>
-                        
-                        <p style="margin-top: 1rem;"><strong>Article 7 : Utilisations autorisées</strong></p>
-                        <p>Le Client est autorisé à utiliser les créations pour tout support imprimé et digital, à l'exclusion de la revente ou distribution des fichiers sources.</p>
-                    `;
-                    break;
-                case 'writing':
-                    contractTitle = "CONTRAT DE RÉDACTION WEB";
-                    specificClauses = `
-                        <p style="margin-top: 1rem;"><strong>Article 6 : Volume et format</strong></p>
-                        <p>Le Prestataire s'engage à fournir des textes optimisés pour le référencement, avec une densité de mots-clés de 2% à 3% maximum.</p>
-                        
-                        <p style="margin-top: 1rem;"><strong>Article 7 : Révisions</strong></p>
-                        <p>Le Client pourra demander une révision par texte livré sans frais supplémentaires, dans la limite de 20% du volume initial.</p>
-                    `;
-                    break;
-                case 'coaching':
-                    contractTitle = "CONTRAT DE COACHING/FORMATION";
-                    specificClauses = `
-                        <p style="margin-top: 1rem;"><strong>Article 6 : Déroulement des sessions</strong></p>
-                        <p>Les sessions se dérouleront selon le calendrier défini en annexe. Toute session annulée moins de 48h à l'avance sera due intégralement.</p>
-                        
-                        <p style="margin-top: 1rem;"><strong>Article 7 : Supports pédagogiques</strong></p>
-                        <p>Les supports pédagogiques fournis par le Prestataire sont strictement réservés à l'usage personnel du Client et ne peuvent être reproduits ou diffusés.</p>
-                    `;
-                    break;
+            let startDate = '20/04/2025';
+            let endDate = '20/07/2025';
+
+            if (startDateInput.value) {
+                const startDateObj = new Date(startDateInput.value);
+                startDate = startDateObj.toLocaleDateString('fr-FR');
             }
 
-            document.getElementById('contract-title').textContent = contractTitle;
-            document.getElementById('specific-clauses').innerHTML = specificClauses;
+            if (endDateInput.value) {
+                const endDateObj = new Date(endDateInput.value);
+                endDate = endDateObj.toLocaleDateString('fr-FR');
+            }
+
+            const paymentTermsSelect = document.getElementById('payment-terms');
+            const amount = document.getElementById('amount').value || '5000';
+
+            // Options avancées
+            const ipClauseEnabled = document.getElementById('ip-clause').checked;
+            const confidentialityEnabled = document.getElementById('confidentiality-clause').checked;
+            const revisionEnabled = document.getElementById('revision-clause').checked;
+            const latePaymentEnabled = document.getElementById('late-payment-clause').checked;
+
+            const ip = document.getElementById('intellectual-property').value;
+            const revisionCount = document.getElementById('revision-count').value;
+            const latePaymentRate = document.getElementById('late-payment-rate').value;
+
+            const additionalClauses = document.getElementById('additional-clauses').value;
 
             // Update preview
             document.getElementById('preview-freelancer').textContent = fullname;
-            document.getElementById('preview-status').textContent = 'Auto-entrepreneur';
+            document.getElementById('preview-status').textContent = professionText;
             document.getElementById('preview-siret').textContent = siret;
             document.getElementById('preview-client').textContent = clientCompany;
             document.getElementById('preview-description').textContent = projectDescription;
@@ -674,31 +446,115 @@
 
             // Payment terms
             let paymentText = '50% à la signature du contrat, 50% à la livraison finale';
-            if (paymentTerms === 'full-advance') paymentText = '100% à l\'avance';
-            if (paymentTerms === '30-70') paymentText = '30% à la signature du contrat, 70% à la livraison finale';
-            if (paymentTerms === 'monthly') paymentText = 'Paiement mensuel';
-            if (paymentTerms === 'milestone') paymentText = 'Paiement par étape selon l\'avancement du projet';
+            if (paymentTermsSelect.value === 'full-advance') paymentText = '100% à l\'avance';
+            if (paymentTermsSelect.value === '30-70') paymentText = '30% à la signature du contrat, 70% à la livraison finale';
+            if (paymentTermsSelect.value === 'monthly') paymentText = 'Paiement mensuel';
+            if (paymentTermsSelect.value === 'milestone') paymentText = 'Paiement par étape selon l\'avancement du projet';
             document.getElementById('preview-payment').textContent = paymentText;
 
-            // IP rights
-            let ipText = 'Le Client deviendra propriétaire de l\'ensemble des droits de propriété intellectuelle sur les livrables produits par le Prestataire dès le paiement complet du prix convenu.';
-            if (ip === 'license') ipText = 'Le Prestataire accorde au Client une licence non exclusive d\'utilisation des livrables pour ses besoins propres. Le Prestataire conserve la propriété intellectuelle des créations réalisées.';
-            if (ip === 'partial') ipText = 'Le Prestataire cède partiellement ses droits d\'auteur au Client selon les conditions suivantes : droit d\'utilisation et de modification pour les besoins internes du Client. Le Prestataire conserve le droit d\'utiliser les créations à des fins de portfolio.';
-            document.getElementById('preview-ip').textContent = ipText;
+            // Construire les articles dynamiques avec numérotation correcte
+            let dynamicArticles = '';
+            let articleNumber = 4; // On commence à l'article 4
 
-            // Additional clauses
-            if (additionalClauses) {
-                document.getElementById('preview-additional').innerHTML = `
-                    <p style="margin-top: 1rem;"><strong>Article 5 : Clauses supplémentaires</strong></p>
+            // Article 4 : Propriété intellectuelle (si activé)
+            if (ipClauseEnabled) {
+                let ipText = 'Le Client deviendra propriétaire de l\'ensemble des droits de propriété intellectuelle sur les livrables produits par le Prestataire dès le paiement complet du prix convenu.';
+                if (ip === 'license') ipText = 'Le Prestataire accorde au Client une licence non exclusive d\'utilisation des livrables pour ses besoins propres. Le Prestataire conserve la propriété intellectuelle des créations réalisées.';
+                if (ip === 'partial') ipText = 'Le Prestataire cède partiellement ses droits d\'auteur au Client selon les conditions suivantes : droit d\'utilisation et de modification pour les besoins internes du Client. Le Prestataire conserve le droit d\'utiliser les créations à des fins de portfolio.';
+
+                dynamicArticles += `
+                    <p style="margin-top: 1rem;"><strong>Article ${articleNumber} : Propriété intellectuelle</strong></p>
+                    <p>${ipText}</p>
+                `;
+                articleNumber++;
+            }
+
+            // Article : Confidentialité (si activé)
+            if (confidentialityEnabled) {
+                dynamicArticles += `
+                    <p style="margin-top: 1rem;"><strong>Article ${articleNumber} : Confidentialité</strong></p>
+                    <p>Le Prestataire s'engage à garder strictement confidentielles et à ne pas divulguer ou communiquer à des tiers, par quelque moyen que ce soit, les informations qui lui seront transmises par le Client ou auxquelles il aura accès à l'occasion de l'exécution du présent contrat. Cette obligation de confidentialité se poursuivra pendant une durée de deux (2) ans après la fin du contrat.</p>
+                `;
+                articleNumber++;
+            }
+
+            // Article : Révisions (si activé)
+            if (revisionEnabled) {
+                dynamicArticles += `
+                    <p style="margin-top: 1rem;"><strong>Article ${articleNumber} : Révisions</strong></p>
+                    <p>Le Client pourra demander jusqu'à ${revisionCount} cycles de révisions des livrables sans frais supplémentaires. Au-delà, toute demande de modification fera l'objet d'une facturation complémentaire selon le tarif horaire du Prestataire.</p>
+                `;
+                articleNumber++;
+            }
+
+            // Article : Pénalités de retard (si activé)
+            if (latePaymentEnabled) {
+                dynamicArticles += `
+                    <p style="margin-top: 1rem;"><strong>Article ${articleNumber} : Pénalités de retard</strong></p>
+                    <p>En cas de retard de paiement, une pénalité de ${latePaymentRate}% du montant de la facture sera exigible, sans qu'un rappel soit nécessaire, dès le jour suivant la date de règlement indiquée sur la facture. Une indemnité forfaitaire pour frais de recouvrement de 40€ sera également due.</p>
+                `;
+                articleNumber++;
+            }
+
+            // Ajouter les clauses supplémentaires (si présentes)
+            if (additionalClauses && additionalClauses.trim() !== '') {
+                dynamicArticles += `
+                    <p style="margin-top: 1rem;"><strong>Article ${articleNumber} : Clauses supplémentaires</strong></p>
                     <p>${additionalClauses}</p>
                 `;
+                articleNumber++;
             }
+
+            // Injecter les articles dynamiques dans le contrat
+            document.getElementById('dynamic-articles').innerHTML = dynamicArticles;
 
             // Show preview
             document.getElementById('preview').style.display = 'block';
 
             // Scroll to preview
             document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Fonction pour télécharger le contrat en PDF
+        function downloadPDF() {
+            // Initialiser jsPDF
+            const { jsPDF } = window.jspdf;
+
+            // Récupérer le contenu du contrat
+            const contractElement = document.getElementById('contract-preview');
+
+            // Créer un élément temporaire pour le style d'impression
+            const tempElement = document.createElement('div');
+            tempElement.innerHTML = contractElement.innerHTML;
+            tempElement.style.width = '210mm'; // Largeur A4
+            tempElement.style.padding = '20mm';
+            tempElement.style.position = 'absolute';
+            tempElement.style.left = '-9999px';
+            document.body.appendChild(tempElement);
+
+            // Utiliser html2canvas pour convertir le HTML en canvas
+            html2canvas(tempElement, {
+                scale: 2, // Meilleure qualité
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                // Supprimer l'élément temporaire
+                document.body.removeChild(tempElement);
+
+                // Dimensions A4
+                const imgWidth = 210;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+
+                // Créer le PDF
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+
+                // Nom du fichier
+                const fileName = `contrat_prestation_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+                // Télécharger le PDF
+                pdf.save(fileName);
+            });
         }
     </script>
 </body>
