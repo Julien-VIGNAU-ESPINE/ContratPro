@@ -17,6 +17,32 @@
             align-items: center;
         }
 
+        /* Ajoutez ces styles dans votre section <style> ou votre fichier CSS */
+.preview-document {
+    width: 100%;
+    max-width: 210mm; /* Largeur A4 */
+    margin: 0 auto;
+    padding: 20mm; /* Marges sur tous les côtés */
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: white;
+    box-sizing: border-box;
+    word-wrap: break-word; /* Retour à la ligne automatique */
+}
+
+.preview-document p {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 100%;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.preview-document h2 {
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -515,47 +541,101 @@
             document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Fonction pour télécharger le contrat en PDF
-        function downloadPDF() {
-            // Initialiser jsPDF
-            const { jsPDF } = window.jspdf;
+        // Fonction améliorée pour télécharger le contrat en PDF avec gestion des multi-pages
+            function downloadPDF() {
+                // Initialiser jsPDF
+                const { jsPDF } = window.jspdf;
 
-            // Récupérer le contenu du contrat
-            const contractElement = document.getElementById('contract-preview');
+                // Récupérer le contenu du contrat
+                const contractElement = document.getElementById('contract-preview');
 
-            // Créer un élément temporaire pour le style d'impression
-            const tempElement = document.createElement('div');
-            tempElement.innerHTML = contractElement.innerHTML;
-            tempElement.style.width = '210mm'; // Largeur A4
-            tempElement.style.padding = '20mm';
-            tempElement.style.position = 'absolute';
-            tempElement.style.left = '-9999px';
-            document.body.appendChild(tempElement);
+                // Créer un élément temporaire pour le style d'impression
+                const tempElement = document.createElement('div');
+                tempElement.innerHTML = contractElement.innerHTML;
 
-            // Utiliser html2canvas pour convertir le HTML en canvas
-            html2canvas(tempElement, {
-                scale: 2, // Meilleure qualité
-                useCORS: true,
-                logging: false
-            }).then(canvas => {
-                // Supprimer l'élément temporaire
-                document.body.removeChild(tempElement);
+                // Appliquer des styles pour l'impression
+                tempElement.style.width = '170mm'; // Largeur A4 moins les marges
+                tempElement.style.margin = '20mm'; // Marges de 20mm
+                tempElement.style.position = 'absolute';
+                tempElement.style.left = '-9999px';
+                tempElement.style.wordWrap = 'break-word'; // Retour à la ligne automatique
+                tempElement.style.whiteSpace = 'normal'; // Assure le retour à la ligne
 
-                // Dimensions A4
-                const imgWidth = 210;
-                const imgHeight = canvas.height * imgWidth / canvas.width;
+                // Appliquer le retour à la ligne à tous les paragraphes
+                const paragraphs = tempElement.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    p.style.wordWrap = 'break-word';
+                    p.style.whiteSpace = 'normal';
+                    p.style.maxWidth = '100%';
+                });
 
-                // Créer le PDF
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+                document.body.appendChild(tempElement);
 
-                // Nom du fichier
-                const fileName = `contrat_prestation_${new Date().toISOString().slice(0, 10)}.pdf`;
+                // Utiliser html2canvas pour convertir le HTML en canvas
+                html2canvas(tempElement, {
+                    scale: 2, // Meilleure qualité
+                    useCORS: true,
+                    logging: false,
+                    width: tempElement.offsetWidth,
+                    height: tempElement.offsetHeight
+                }).then(canvas => {
+                    // Supprimer l'élément temporaire
+                    document.body.removeChild(tempElement);
 
-                // Télécharger le PDF
-                pdf.save(fileName);
-            });
-        }
+                    // Dimensions A4 (210mm x 297mm) avec marges
+                    const pageWidth = 210;
+                    const pageHeight = 297;
+                    const margin = 20; // Marge en mm
+
+                    // Largeur effective du contenu (A4 moins les marges)
+                    const contentWidth = pageWidth - (margin * 2);
+
+                    // Calculer la hauteur proportionnelle de l'image complète
+                    const imgHeight = canvas.height * contentWidth / canvas.width;
+
+                    // Créer le PDF
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+
+                    // Diviser en plusieurs pages si nécessaire
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    let page = 1;
+
+                    // Ajouter la première page avec les marges
+                    pdf.addImage(
+                        canvas.toDataURL('image/png'),
+                        'PNG',
+                        margin, // Marge gauche
+                        margin, // Marge haute
+                        contentWidth,
+                        imgHeight
+                    );
+
+                    heightLeft -= (pageHeight - (margin * 2));
+
+                    // Ajouter des pages supplémentaires si nécessaire
+                    while (heightLeft > 0) {
+                        position = -((pageHeight - (margin * 2)) * page) + margin;
+                        pdf.addPage();
+                        pdf.addImage(
+                            canvas.toDataURL('image/png'),
+                            'PNG',
+                            margin, // Marge gauche
+                            position,
+                            contentWidth,
+                            imgHeight
+                        );
+                        heightLeft -= (pageHeight - (margin * 2));
+                        page++;
+                    }
+
+                    // Nom du fichier
+                    const fileName = `contrat_prestation_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+                    // Télécharger le PDF
+                    pdf.save(fileName);
+                });
+            }
     </script>
 </body>
 
